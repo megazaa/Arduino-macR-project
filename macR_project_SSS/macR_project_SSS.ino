@@ -7,6 +7,7 @@ int pinZ = 8;
 int pinD = 9;
 
 // State variables
+bool LOOP = true;
 int movingFlag = 1;
 int direction = 1;
 int pulseInitX = 0, pulseInitY = 0;
@@ -30,17 +31,17 @@ void setup() {
 
 void loop() {
   // Read button states
-  int buttonStateX = digitalRead(pinA);
-  int buttonStateY = digitalRead(pinB);
-  int buttonStateDIR = digitalRead(pinZ);
+  if (LOOP) {
+    int buttonStateX = digitalRead(pinA);
+    int buttonStateY = digitalRead(pinB);
+    int buttonStateDIR = digitalRead(pinZ);
 
-  // Execute functions
-  DirButton(buttonStateDIR, buttonStateX, buttonStateY);
-  Serial.println("status X Y " + String(buttonStateX) + " " + String(buttonStateY));
-  xPulse(buttonStateX);
-  yPulse(buttonStateY);
-  Serial.println(STATE);
-  Serial.println("movingFlag =" + String(movingFlag));
+    // Execute functions
+    DirButton(buttonStateDIR, buttonStateX, buttonStateY);
+    xPulse(buttonStateX);
+    yPulse(buttonStateY);
+    Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
+  }
 }
 
 void DirButton(int buttonState, int XState, int YState) {
@@ -48,7 +49,7 @@ void DirButton(int buttonState, int XState, int YState) {
   if (pulseInitY > 0) {
     directionCHECK(pulseInitY);
   }
-  
+
   // Check limits
   if (pulseInitY >= pulseLimitY && pulseInitX >= pulseLimitX) {
     digitalWrite(pinY, LOW);
@@ -61,19 +62,13 @@ void DirButton(int buttonState, int XState, int YState) {
   if (buttonState == LOW && STATE == 0) {
     if (pulseInitX == 0 and pulseInitY % 2 == 0 || (pulseInitY % 2 == 1 && (pulseInitX >= pulseLimitX))) {  //start End
       MovingMov(XState, YState, pinX);
-      Serial.println(movingFlag);
-      Serial.println(" ksadkasdkaksdksakdaskdkasdksadksasaddasd");
     } else if (((pulseInitX >= pulseLimitX) || (pulseInitX == 0)) && (movingFlag == 1)) {
       MovingMov(XState, YState, pinY);
       digitalWrite(pinX, LOW);
       movingFlag = 1;
-      Serial.println("1 movingFlag =" + String(movingFlag));
     } else {
       MovingMov(XState, YState, pinX);
-      Serial.println(movingFlag);
-      Serial.println(" yyyyyyyyoooooooooooo movwe  this huh");
     }
-
     Serial.println("moving");
   }
   delay(500);
@@ -84,26 +79,20 @@ void xPulse(int buttonState) {
     digitalWrite(pinX, LOW);
     directionCHECK(pulseInitY);
     pulseInitX = pulseInitX + direction;
-    Serial.println("X Pulseisworking");
-    Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
     STATE = 0;
   }
   Ycout = 0;
   Xcout = 0;
-  delay(100);
 }
 
 void yPulse(int buttonState) {
   if ((buttonState == HIGH) && (STATE == 1) && (Ycout >= Xcout)) {
     pulseInitY++;
     digitalWrite(pinY, LOW);
-    Serial.println("Y Pulseisworking");
-    Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
     STATE = 0;
   }
   Ycout = 0;
   Xcout = 0;
-  delay(100);
 }
 
 int directionCHECK(int numb) {
@@ -123,10 +112,9 @@ void MovingMov(int buttonStateX, int buttonStateY, int pinSOMETING) {
   delay(500);
   buttonStateX = digitalRead(pinA);
   buttonStateY = digitalRead(pinB);
-  
+
   if (buttonStateX == LOW && buttonStateY == LOW) {
     while (buttonStateX == LOW || buttonStateY == LOW) {
-      Serial.println("buttonStateX == LOW || buttonStateY == LOW");
       digitalWrite(pinSOMETING, HIGH);
       buttonStateX = digitalRead(pinA);
       buttonStateY = digitalRead(pinB);
@@ -137,7 +125,6 @@ void MovingMov(int buttonStateX, int buttonStateY, int pinSOMETING) {
     }
   } else if (buttonStateX == LOW) {
     while (buttonStateX == LOW) {
-      Serial.println("XTime = " + String(Xcout));
       digitalWrite(pinSOMETING, HIGH);
       buttonStateX = digitalRead(pinA);
       buttonStateY = digitalRead(pinB);
@@ -149,7 +136,6 @@ void MovingMov(int buttonStateX, int buttonStateY, int pinSOMETING) {
     }
   } else if (buttonStateY == LOW) {
     while (buttonStateY == LOW) {
-      Serial.println("XTime = " + String(Ycout));
       digitalWrite(pinSOMETING, HIGH);
       buttonStateX = digitalRead(pinA);
       buttonStateY = digitalRead(pinB);

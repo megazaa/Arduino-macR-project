@@ -1,4 +1,3 @@
-// Pin definitions
 int pinA = 2;
 int pinB = 3;
 int pinX = 5;
@@ -6,7 +5,6 @@ int pinY = 6;
 int pinZ = 8;
 int pinD = 9;
 
-// State variables
 int movingFlag = 1;
 int direction = 1;
 int pulseInitX = 0, pulseInitY = 0;
@@ -14,9 +12,8 @@ int pulseLimitX = 4, pulseLimitY = 2;
 int STATE = 0;
 int Xcout = 0;
 int Ycout = 0;
-
+bool notFinish = true;
 void setup() {
-  // Setup pin modes
   pinMode(pinA, INPUT_PULLUP);
   pinMode(pinB, INPUT_PULLUP);
   pinMode(pinZ, INPUT_PULLUP);
@@ -24,56 +21,47 @@ void setup() {
   pinMode(pinY, OUTPUT);
   pinMode(pinD, OUTPUT);
 
-  // Initialize serial communication
-  Serial.begin(9600);
+  Serial.begin(9600);  // Initialize serial communication
 }
 
 void loop() {
-  // Read button states
-  int buttonStateX = digitalRead(pinA);
+  if(notFinish){
+    int buttonStateX = digitalRead(pinA);
   int buttonStateY = digitalRead(pinB);
   int buttonStateDIR = digitalRead(pinZ);
-
-  // Execute functions
   DirButton(buttonStateDIR, buttonStateX, buttonStateY);
-  Serial.println("status X Y " + String(buttonStateX) + " " + String(buttonStateY));
-  xPulse(buttonStateX);
-  yPulse(buttonStateY);
-  Serial.println(STATE);
-  Serial.println("movingFlag =" + String(movingFlag));
+  delay(100);
+  }
+  
 }
 
 void DirButton(int buttonState, int XState, int YState) {
-  // Check direction
   if (pulseInitY > 0) {
     directionCHECK(pulseInitY);
   }
-  
-  // Check limits
   if (pulseInitY >= pulseLimitY && pulseInitX >= pulseLimitX) {
     digitalWrite(pinY, LOW);
     digitalWrite(pinX, LOW);
     Serial.println("Finish ");
-    return;
+    notFinish = false;
   }
 
-  // Check button and state
+
   if (buttonState == LOW && STATE == 0) {
     if (pulseInitX == 0 and pulseInitY % 2 == 0 || (pulseInitY % 2 == 1 && (pulseInitX >= pulseLimitX))) {  //start End
       MovingMov(XState, YState, pinX);
-      Serial.println(movingFlag);
-      Serial.println(" ksadkasdkaksdksakdaskdkasdksadksasaddasd");
     } else if (((pulseInitX >= pulseLimitX) || (pulseInitX == 0)) && (movingFlag == 1)) {
       MovingMov(XState, YState, pinY);
       digitalWrite(pinX, LOW);
       movingFlag = 1;
       Serial.println("1 movingFlag =" + String(movingFlag));
-    } else {
+
+    } 
+    else {
       MovingMov(XState, YState, pinX);
       Serial.println(movingFlag);
       Serial.println(" yyyyyyyyoooooooooooo movwe  this huh");
     }
-
     Serial.println("moving");
   }
   delay(500);
@@ -90,9 +78,7 @@ void xPulse(int buttonState) {
   }
   Ycout = 0;
   Xcout = 0;
-  delay(100);
 }
-
 void yPulse(int buttonState) {
   if ((buttonState == HIGH) && (STATE == 1) && (Ycout >= Xcout)) {
     pulseInitY++;
@@ -103,9 +89,7 @@ void yPulse(int buttonState) {
   }
   Ycout = 0;
   Xcout = 0;
-  delay(100);
 }
-
 int directionCHECK(int numb) {
   if (numb % 2 == 0) {
     direction = 1;
@@ -123,7 +107,6 @@ void MovingMov(int buttonStateX, int buttonStateY, int pinSOMETING) {
   delay(500);
   buttonStateX = digitalRead(pinA);
   buttonStateY = digitalRead(pinB);
-  
   if (buttonStateX == LOW && buttonStateY == LOW) {
     while (buttonStateX == LOW || buttonStateY == LOW) {
       Serial.println("buttonStateX == LOW || buttonStateY == LOW");
@@ -132,6 +115,8 @@ void MovingMov(int buttonStateX, int buttonStateY, int pinSOMETING) {
       buttonStateY = digitalRead(pinB);
       if (buttonStateX == HIGH || buttonStateY == HIGH) {
         Serial.println("BREAKK");
+        xPulse(buttonStateX);
+        yPulse(buttonStateY);
         break;
       }
     }
@@ -144,6 +129,8 @@ void MovingMov(int buttonStateX, int buttonStateY, int pinSOMETING) {
       Xcout++;
       if (buttonStateX == HIGH) {
         Serial.println("BREAKK");
+        xPulse(buttonStateX);
+        yPulse(buttonStateY);
         break;
       }
     }
@@ -156,6 +143,8 @@ void MovingMov(int buttonStateX, int buttonStateY, int pinSOMETING) {
       Ycout++;
       if (buttonStateY == HIGH) {
         Serial.println("BREAKK");
+        xPulse(buttonStateX);
+        yPulse(buttonStateY);
         movingFlag = 0;
         break;
       }

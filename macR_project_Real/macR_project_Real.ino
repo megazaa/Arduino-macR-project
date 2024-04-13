@@ -8,7 +8,7 @@ int pinD = 9;
 int movingFlag = 1;
 int direction = 1;
 int pulseInitX = 0, pulseInitY = 0;
-int pulseLimitX = 4, pulseLimitY = 2;
+int pulseLimitX = 7, pulseLimitY = 5;
 int STATE = 0;
 int Xcout = 0;
 int Ycout = 0;
@@ -25,14 +25,14 @@ void setup() {
 }
 
 void loop() {
-  if(notFinish){
+  if (notFinish) {
     int buttonStateX = digitalRead(pinA);
-  int buttonStateY = digitalRead(pinB);
-  int buttonStateDIR = digitalRead(pinZ);
-  DirButton(buttonStateDIR, buttonStateX, buttonStateY);
-  delay(100);
+    int buttonStateY = digitalRead(pinB);
+    int buttonStateDIR = digitalRead(pinZ);
+    DirButton(buttonStateDIR, buttonStateX, buttonStateY);
+    delay(100);
   }
-  
+
 }
 
 void DirButton(int buttonState, int XState, int YState) {
@@ -56,7 +56,7 @@ void DirButton(int buttonState, int XState, int YState) {
       movingFlag = 1;
       Serial.println("1 movingFlag =" + String(movingFlag));
 
-    } 
+    }
     else {
       MovingMov(XState, YState, pinX);
       Serial.println(movingFlag);
@@ -93,11 +93,13 @@ void yPulse(int buttonState) {
 int directionCHECK(int numb) {
   if (numb % 2 == 0) {
     direction = 1;
-    digitalWrite(pinD, LOW);
-  } else {
+    digitalWrite(pinD, LOW);}
+  else {
     direction = -1;
     digitalWrite(pinD, HIGH);
   }
+  if ((pulseInitX == 0)){
+    digitalWrite(pinD, LOW);}
   return direction;
 }
 

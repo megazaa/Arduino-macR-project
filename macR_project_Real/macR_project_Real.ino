@@ -210,13 +210,13 @@ void zPulse() {
 
 void directionCHECK() {
   if (z_check == 0) {
-    if (z_STATE == 0) {
-      digitalWrite(pinD, HIGH);
+    if (z_STATE == -1) {
+      digitalWrite(pinD, LOW);
       direction = -1;
       return;
     }
-    if (z_STATE == -1) {
-      digitalWrite(pinD, LOW);
+    if (z_STATE == 0) {
+      digitalWrite(pinD, HIGH);
       direction = 1;
       return;
     }

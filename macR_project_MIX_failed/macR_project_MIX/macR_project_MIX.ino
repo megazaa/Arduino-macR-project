@@ -80,6 +80,7 @@ void loop() {
     //stepperX.runSpeed();
     //stepperX.runSpeed();
     //stepperY.runSpeed();
+    
     DirButton();
     stateCheck();
     redoButton();
@@ -102,6 +103,9 @@ void DirButton() {
       return;
     }
     if (z_check == 0 && z_STATE == -1) {
+      while(true){}
+      stepperY.move(640000);
+      stepperY.run();
       Serial.println("z_check = 1 ");
       MovingMov(pinZ);  // if it down go up
       z_STATE = 0;
@@ -279,12 +283,14 @@ void directionCHECK() {
 void digitalWritePinSelect(int pinSOMETING) {
   if (pinSOMETING == pinX) {
     digitalWrite(pinSOMETING, HIGH);
-    stepperX.runSpeed();
+    stepperX.move(640000);
+    stepperX.run();
     return;
   }
   if (pinSOMETING == pinY) {
     digitalWrite(pinSOMETING, HIGH);
-    stepperY.runSpeed();
+    stepperY.move(640000);
+    stepperY.run();
     return;
   }
   if (pinSOMETING == pinZ) {

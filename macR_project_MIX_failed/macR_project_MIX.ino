@@ -1,3 +1,5 @@
+#include <AccelStepper.h>
+
 const int pinA = 2;
 const int pinB = 3;
 const int pinC = 13;
@@ -45,9 +47,15 @@ bool error = false;
 int arrX[(pulseLimitX + 1) * (pulseLimitY + 1)] = {};
 int arrY[(pulseLimitX + 1) * (pulseLimitY + 1)] = {};
 
+AccelStepper stepperX(1, pinX, pinD);
+AccelStepper stepperY(1, pinY, pinD);
 
 void setup() {
   //z_check = 1;
+  stepperX.setMaxSpeed(2000);
+  stepperX.setSpeed(2000);
+  stepperY.setMaxSpeed(2000);
+  stepperY.setSpeed(2000);
   pinMode(pinA, INPUT_PULLUP);
   pinMode(pinB, INPUT_PULLUP);
   pinMode(pinC, INPUT_PULLUP);
@@ -69,8 +77,11 @@ void loop() {
     Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
     Serial.println("current position(arr): " + String(arrX[i]) + " " + String(arrY[i]));
     //Serial.println("STATE : NORMAL" );
+    //stepperX.runSpeed();
+    //stepperX.runSpeed();
+    //stepperY.runSpeed();
     DirButton();
-    //stateCheck();
+    stateCheck();
     redoButton();
     //stateCheck();
     returnZero();
@@ -132,6 +143,7 @@ void DirButton() {
     } else if (((pulseInitX >= pulseLimitX) || (pulseInitX == 0)) && (movingFlag > 0)) {
       MovingMov(pinY);
       digitalWrite(pinX, LOW);
+      stepperX.stop();
       //movingFlag --;
       Serial.println("1 movingFlag =" + String(movingFlag));
 
@@ -158,6 +170,7 @@ void PulseCheck(int buttonStateX, int buttonStateY) {
 void xPulse(int buttonState) {
   if ((buttonState == HIGH) && (Xcout >= Ycout)) {
     digitalWrite(pinX, LOW);
+    stepperX.stop();
     directionCHECK();
     pulseInitX = pulseInitX + direction;
     Serial.println("X Pulseisworking");
@@ -263,17 +276,33 @@ void directionCHECK() {
 
   //return direction;
 }
+void digitalWritePinSelect(int pinSOMETING) {
+  if (pinSOMETING == pinX) {
+    digitalWrite(pinSOMETING, HIGH);
+    stepperX.runSpeed();
+    return;
+  }
+  if (pinSOMETING == pinY) {
+    digitalWrite(pinSOMETING, HIGH);
+    stepperY.runSpeed();
+    return;
+  }
+  if (pinSOMETING == pinZ) {
+    digitalWrite(pinSOMETING, HIGH);
+    return;
+  }
+}
 
 void MovingMov(int pinSOMETING) {
   if ((z_STATE == 0 || z_STATE == -1) && z_check == 0 && currentState != STATE::MOVING && currentState != STATE::REDO && currentState != STATE::RESET) {
     directionCHECK();
-    digitalWrite(pinSOMETING, HIGH);
+    digitalWritePinSelect(pinSOMETING);
     Serial.println("MovingMov = Z ");
     zPulse();
     return;
   }
   if (currentState == STATE::MOVING) {
-    digitalWrite(pinSOMETING, HIGH);
+    digitalWritePinSelect(pinSOMETING);
     delay(500);
     buttonStateX = digitalRead(pinA);
     buttonStateY = digitalRead(pinB);
@@ -282,7 +311,7 @@ void MovingMov(int pinSOMETING) {
     } else if (buttonStateX == LOW) {
       while (buttonStateX == LOW) {
         Serial.println("XTime = " + String(Xcout));
-        digitalWrite(pinSOMETING, HIGH);
+        digitalWritePinSelect(pinSOMETING);
         buttonStateX = digitalRead(pinA);
         buttonStateY = digitalRead(pinB);
         Xcout++;
@@ -297,7 +326,7 @@ void MovingMov(int pinSOMETING) {
     } else if (buttonStateY == LOW) {
       while (buttonStateY == LOW) {
         Serial.println("YTime = " + String(Ycout));
-        digitalWrite(pinSOMETING, HIGH);
+        digitalWritePinSelect(pinSOMETING);
         buttonStateX = digitalRead(pinA);
         buttonStateY = digitalRead(pinB);
         Ycout++;
@@ -313,13 +342,14 @@ void MovingMov(int pinSOMETING) {
     } else {
       Serial.println("Error: not on rail 0");
       digitalWrite(pinX, LOW);
+      stepperX.stop();
       digitalWrite(pinY, LOW);
       Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
       currentState == STATE::NORMAL;
     }
   }
   if (currentState == STATE::REDO || currentState == STATE::RESET) {
-    digitalWrite(pinSOMETING, HIGH);
+    digitalWritePinSelect(pinSOMETING);
     delay(500);
     buttonStateX = digitalRead(pinA);
     buttonStateY = digitalRead(pinB);
@@ -330,7 +360,7 @@ void MovingMov(int pinSOMETING) {
     } else if (buttonStateX == LOW) {
       while (buttonStateX == LOW) {
         Serial.println("XTime = " + String(Xcout));
-        digitalWrite(pinSOMETING, HIGH);
+        digitalWritePinSelect(pinSOMETING);
         buttonStateX = digitalRead(pinA);
         buttonStateY = digitalRead(pinB);
         Xcout++;
@@ -355,7 +385,7 @@ void MovingMov(int pinSOMETING) {
     } else if (buttonStateY == LOW) {
       while (buttonStateY == LOW) {
         Serial.println("XTime = " + String(Ycout));
-        digitalWrite(pinSOMETING, HIGH);
+        digitalWritePinSelect(pinSOMETING);
         buttonStateX = digitalRead(pinA);
         buttonStateY = digitalRead(pinB);
         Ycout++;
@@ -380,7 +410,9 @@ void MovingMov(int pinSOMETING) {
     } else {
       Serial.println("Error: not on rail 1");
       digitalWrite(pinX, LOW);
+      stepperX.stop();
       digitalWrite(pinY, LOW);
+      stepperY.stop();
       Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
       if (currentState == STATE::REDO) {
         currentState = STATE::NORMAL;
@@ -524,7 +556,9 @@ void DEBUG(int pinSOMETING) {
 }
 void cut_out() {
   digitalWrite(pinX, LOW);
+  stepperX.stop();
   digitalWrite(pinY, LOW);
+  stepperY.stop();
   digitalWrite(pinZ, LOW);
   digitalWrite(pinD, LOW);
 }

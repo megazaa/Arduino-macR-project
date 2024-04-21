@@ -1,12 +1,12 @@
 const int pinA = 2;
 const int pinB = 3;
-const int pinC = 13;
+const int pinC = 10;
+const int pinDir = 8;
+const int pinRD = 7;
 const int pinRS = 4;
 const int pinX = 5;
 const int pinY = 6;
 const int pinZ = 12;
-const int pinRD = 7;
-const int pinDir = 8;
 const int pinD = 9;
 
 const int pulseLimitX = 1, pulseLimitY = 1;
@@ -54,6 +54,7 @@ void setup() {
   pinMode(pinDir, INPUT_PULLUP);
   pinMode(pinRD, INPUT_PULLUP);
   pinMode(pinRS, INPUT_PULLUP);
+
   pinMode(pinX, OUTPUT);
   pinMode(pinY, OUTPUT);
   pinMode(pinZ, OUTPUT);
@@ -205,6 +206,7 @@ void zPulse() {
       break;
       //return;
     }
+    Serial.println("jumppp c");
   }
 }
 

@@ -9,7 +9,7 @@ const int pinY = 6;
 const int pinZ = 12;
 const int pinD = 9;
 
-const int pulseLimitX = 1, pulseLimitY = 1;
+const int pulseLimitX = 2, pulseLimitY = 2;
 int pulseInitX = 0, pulseInitY = 0;
 
 enum class STATE {

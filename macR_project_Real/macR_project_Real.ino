@@ -1,17 +1,22 @@
+//input
 const int pinA = 2;
 const int pinB = 3;
 const int pinC = 10;
 const int pinDir = 8;
 const int pinRD = 7;
 const int pinRS = 4;
+
+//output
 const int pinX = 5;
 const int pinY = 6;
 const int pinZ = 12;
 const int pinD = 9;
 
+//pivot&limiter
 const int pulseLimitX = 2, pulseLimitY = 2;
 int pulseInitX = 0, pulseInitY = 0;
 
+//state
 enum class STATE {
   NORMAL,
   MOVING,
@@ -21,19 +26,22 @@ enum class STATE {
   z_MOV,
 };
 
+//init state
 STATE currentState = STATE::NORMAL;
 
-int direction = 1;
-
-int movingFlag = pulseLimitY;
-int Xcout = 0;
-int Ycout = 0;
+//init input PIN
 int buttonStateX = digitalRead(pinA);
 int buttonStateY = digitalRead(pinB);
 int buttonLimitZ = digitalRead(pinC);
 int buttonDIR = digitalRead(pinDir);
 int buttonRedo = digitalRead(pinRD);
 int buttonReset = digitalRead(pinRS);
+
+//declare values for function
+int direction = 1;
+int movingFlag = pulseLimitY;
+int Xcout = 0;
+int Ycout = 0;
 int i = 0;
 int try_LIMIT = 3;
 int try_attempt;
@@ -45,9 +53,9 @@ bool error = false;
 int arrX[(pulseLimitX + 1) * (pulseLimitY + 1)] = {};
 int arrY[(pulseLimitX + 1) * (pulseLimitY + 1)] = {};
 
-
+//setting up program
 void setup() {
-  //z_check = 1;
+  //input
   pinMode(pinA, INPUT_PULLUP);
   pinMode(pinB, INPUT_PULLUP);
   pinMode(pinC, INPUT_PULLUP);
@@ -55,6 +63,7 @@ void setup() {
   pinMode(pinRD, INPUT_PULLUP);
   pinMode(pinRS, INPUT_PULLUP);
 
+  //output
   pinMode(pinX, OUTPUT);
   pinMode(pinY, OUTPUT);
   pinMode(pinZ, OUTPUT);
@@ -62,36 +71,26 @@ void setup() {
   Serial.begin(9600);  // Initialize serial communication
 }
 
+//program run loop
 void loop() {
-  //currentState = STATE::NORMAL;
   if (Execpthrow() == false) {
-    Serial.println(z_check);
-    Serial.println(z_STATE);
-    Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
-    Serial.println("current position(arr): " + String(arrX[i]) + " " + String(arrY[i]));
-    //Serial.println("STATE : NORMAL" );
     DirButton();
-    //stateCheck();
     redoButton();
-    //stateCheck();
     returnZero();
-    //stateCheck();
-    //Serial.println("i" + String(i));
-    //Serial.println("movingFlag" + String(movingFlag));
     delay(500);
   }
 }
 
+//moving function
 void DirButton() {
   buttonDIR = digitalRead(pinDir);
-  if (buttonDIR == LOW && (pulseInitY >= pulseLimitY && pulseInitX >= pulseLimitX)) {
-    if (z_check == 0 && z_STATE != -1) {
+  if (buttonDIR == LOW && (pulseInitY >= pulseLimitY && pulseInitX >= pulseLimitX)) {     //working when SW is on and at pivot(max_X,max_Y)
+    if (z_check == 0 && z_STATE != -1) {                                                    //check if Z axis is't already go down
       Serial.println("z_check = 0 ");
-      z_STATE = 0;
-      MovingMov(pinZ);  //if not down yet go down state =1
+      MovingMov(pinZ);  //if not down yet go down state =1                                  //move Z axis down
       return;
     }
-    if (z_check == 0 && z_STATE == -1) {
+    if (z_check == 0 && z_STATE == -1) {                                                  //
       Serial.println("z_check = 1 ");
       MovingMov(pinZ);  // if it down go up
       z_STATE = 0;
@@ -510,19 +509,30 @@ void stateCheck() {
       break;
   }
 }
+
 void DEBUG(int pinSOMETING) {
-  if (pinSOMETING == pinX) {
+  /*
+    if (pinSOMETING == pinX) {
     //delay(random(5, 10));
     digitalWrite(pinA, LOW);
     Serial.println("click X on rail");
     return;
-  }
-  if (pinSOMETING == pinY) {
+    }
+    if (pinSOMETING == pinY) {
     //delay(random(5, 10));
     digitalWrite(pinB, LOW);
     Serial.println("click Y on rail");
     return;
-  }
+    }*/
+
+  Serial.println(z_check);
+  Serial.println(z_STATE);
+  Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
+  Serial.println("current position(arr): " + String(arrX[i]) + " " + String(arrY[i]));
+  Serial.println("STATE : NORMAL" );
+  //stateCheck();
+  //Serial.println("i" + String(i));
+  //Serial.println("movingFlag" + String(movingFlag));
 }
 void cut_out() {
   digitalWrite(pinX, LOW);

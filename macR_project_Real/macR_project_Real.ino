@@ -197,6 +197,7 @@ void zPulse() {
       digitalWrite(pinZ, LOW);
       z_STATE = -1;
       Serial.println("z_STATE = -1");
+      digitalWrite(pinREDE, LOW); 
       break;
       //return;
     }
@@ -204,6 +205,7 @@ void zPulse() {
       digitalWrite(pinZ, LOW);
       z_STATE = 0;
       Serial.println("z_STATE = 0");
+      digitalWrite(pinREDE, LOW); 
       break;
       //return;
     }
@@ -268,11 +270,11 @@ void directionCHECK() {
 }
 
 void MovingMov(int pinSOMETING) {
-  digitalWrite(pinREDE, HIGH);
-  delay(200);
   if ((z_STATE == 0 || z_STATE == -1) && z_check == 0 && currentState != STATE::MOVING && currentState != STATE::REDO && currentState != STATE::RESET) {
     directionCHECK();
     digitalWrite(pinSOMETING, HIGH);
+    delay(200);
+    digitalWrite(pinREDE, HIGH); 
     Serial.println("MovingMov = Z ");
     zPulse();
     return;
@@ -280,6 +282,7 @@ void MovingMov(int pinSOMETING) {
   if (currentState == STATE::MOVING) {
     digitalWrite(pinSOMETING, HIGH);
     delay(500);
+    digitalWrite(pinREDE, HIGH);  
     buttonStateX = digitalRead(pinA);
     buttonStateY = digitalRead(pinB);
     if (buttonStateX == LOW && buttonStateY == LOW) {
@@ -293,6 +296,7 @@ void MovingMov(int pinSOMETING) {
         Xcout++;
         if (buttonStateX == HIGH) {
           Serial.println("BREAKK");
+          digitalWrite(pinREDE, LOW); 
           i++;
           PulseCheck(buttonStateX, buttonStateY);
           currentState = STATE::NORMAL;
@@ -308,6 +312,7 @@ void MovingMov(int pinSOMETING) {
         Ycout++;
         if (buttonStateY == HIGH) {
           Serial.println("BREAKK");
+          digitalWrite(pinREDE, LOW); 
           i++;
           PulseCheck(buttonStateX, buttonStateY);
           movingFlag--;
@@ -319,6 +324,7 @@ void MovingMov(int pinSOMETING) {
       Serial.println("Error: not on rail 0");
       digitalWrite(pinX, LOW);
       digitalWrite(pinY, LOW);
+      digitalWrite(pinREDE, LOW); 
       Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
       currentState == STATE::NORMAL;
     }
@@ -326,6 +332,7 @@ void MovingMov(int pinSOMETING) {
   if (currentState == STATE::REDO || currentState == STATE::RESET) {
     digitalWrite(pinSOMETING, HIGH);
     delay(500);
+    digitalWrite(pinREDE, HIGH); 
     buttonStateX = digitalRead(pinA);
     buttonStateY = digitalRead(pinB);
     //DEBUG(pinSOMETING);
@@ -341,6 +348,7 @@ void MovingMov(int pinSOMETING) {
         Xcout++;
         if (buttonStateX == HIGH) {
           Serial.println("BREAKK");
+          digitalWrite(pinREDE, LOW); 
           i--;
           PulseCheck(buttonStateX, buttonStateY);
           if (currentState == STATE::REDO) {
@@ -366,6 +374,7 @@ void MovingMov(int pinSOMETING) {
         Ycout++;
         if (buttonStateY == HIGH) {
           Serial.println("BREAKK");
+          digitalWrite(pinREDE, LOW); 
           i--;
           PulseCheck(buttonStateX, buttonStateY);
           movingFlag++;
@@ -386,6 +395,7 @@ void MovingMov(int pinSOMETING) {
       Serial.println("Error: not on rail 1");
       digitalWrite(pinX, LOW);
       digitalWrite(pinY, LOW);
+      digitalWrite(pinREDE, LOW); 
       Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
       if (currentState == STATE::REDO) {
         currentState = STATE::NORMAL;

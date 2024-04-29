@@ -210,7 +210,7 @@ void zPulse() {
 }
 
 void directionCHECK() {
-  if (z_check == 0) {
+  if (z_check == 0) { // z checking
     if (z_STATE == -1) {
       digitalWrite(pinD, LOW);
       direction = -1;
@@ -221,39 +221,39 @@ void directionCHECK() {
       direction = 1;
       return;
     }
-  } else {
-    if (pulseInitX == 0 && pulseInitY == 0) {
-      Serial.println("pulseInitX == 0");
+  } else { 
+    if (pulseInitX == 0 && pulseInitY == 0) { // At (0,0) normally state the + direction (X AXIZ)
+      Serial.println("pulseInitX == 0 && pulseInitY == 0");
       direction = 1;
       digitalWrite(pinD, LOW);
       return;
     }
-    if (redoX < 0 && currentState == STATE::REDO) {
-      Serial.println("redoX<0 && currentState == STATE::RESET");
+    if (redoX < 0 && currentState == STATE::REDO) { // REDO STATE : working when it at (0,0) (X AXIZ)
+      Serial.println("redoX < 0 && currentState == STATE::REDO");
       direction = 1;
       digitalWrite(pinD, LOW);
       return;
     }
-    if (currentState == STATE::REDO || currentState == STATE::RESET) {
-      Serial.println("other currentState == STATE::RESET");
+    if (currentState == STATE::REDO || currentState == STATE::RESET) { // REDO STATE or RESET STATE make  
+      Serial.println("currentState == STATE::REDO || currentState == STATE::RESET");
       direction = -1;
       digitalWrite(pinD, HIGH);
       return;
     }
-    if (pulseInitX == 0) {
+    if (pulseInitX == 0) { //(X AXIZ) when it lefty ex (0,1),(0,2)...  the direction should go +
       Serial.println("pulseInitX == 0");
       direction = 1;
       digitalWrite(pinD, LOW);
       return;
     }
-    if (pulseInitY % 2 == 0 && currentState == STATE::MOVING) {
-      Serial.println("others 1");
+    if (pulseInitY % 2 == 0 && currentState == STATE::MOVING) { //(Y AXIZ)
+      Serial.println("pulseInitY % 2 == 0 && currentState == STATE::MOVING");
       direction = 1;
       digitalWrite(pinD, LOW);
       return;
     }
-    if (pulseInitY % 2 == 1 && currentState == STATE::MOVING) {
-      Serial.println("others 1 else");
+    if (pulseInitY % 2 == 1 && currentState == STATE::MOVING) { //(Y AXIZ)
+      Serial.println("pulseInitY % 2 == 1 && currentState == STATE::MOVING");
       direction = -1;
       digitalWrite(pinD, HIGH);
       return;

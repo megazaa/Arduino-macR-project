@@ -1,16 +1,17 @@
 //input
-const int pinA = 2;
-const int pinB = 3;
+const int pinA = 12;
+const int pinB = 11;
 const int pinC = 10;
-const int pinDir = 8;
-const int pinRD = 7;
-const int pinRS = 4;
+const int pinDir = 9;
+const int pinRD = 8;
+const int pinRS = 7;
 
 //output
-const int pinX = 5;
-const int pinY = 6;
-const int pinZ = 12;
-const int pinD = 9;
+const int pinX = 6;
+const int pinY = 4;
+const int pinZ = 2;
+const int pinD = 5;
+const int pinREDE = 3; 
 
 //pivot&limiter
 const int pulseLimitX = 2, pulseLimitY = 2;
@@ -68,6 +69,7 @@ void setup() {
   pinMode(pinY, OUTPUT);
   pinMode(pinZ, OUTPUT);
   pinMode(pinD, OUTPUT);
+  pinMode(pinREDE, OUTPUT);
   Serial.begin(9600);  // Initialize serial communication
 }
 
@@ -77,7 +79,7 @@ void loop() {
     DirButton();
     redoButton();
     returnZero();
-    delay(500);
+    //delay(500); //delay off
   }
 }
 
@@ -266,6 +268,8 @@ void directionCHECK() {
 }
 
 void MovingMov(int pinSOMETING) {
+  digitalWrite(pinREDE, HIGH);
+  delay(200);
   if ((z_STATE == 0 || z_STATE == -1) && z_check == 0 && currentState != STATE::MOVING && currentState != STATE::REDO && currentState != STATE::RESET) {
     directionCHECK();
     digitalWrite(pinSOMETING, HIGH);

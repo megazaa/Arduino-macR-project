@@ -14,7 +14,7 @@ const int pinD = 5;
 const int pinREDE = 3;
 
 //pivot&limiter
-const int pulseLimitX = 2, pulseLimitY = 2;
+const int pulseLimitX = 6, pulseLimitY = 4;
 int pulseInitX = 0, pulseInitY = 0;
 
 //state
@@ -92,6 +92,7 @@ void DirButton() {
     //check if Z axis is't already go down
     Serial.println("CON 1");
     Serial.println("z_check = 0 ");
+    //directionCHECK();
     buttonLimitZ = digitalRead(pinC);
     MovingMov(pinZ);  //if not down yet go down state =1                                  //move Z axis down
     return;
@@ -99,10 +100,12 @@ void DirButton() {
     Serial.println("CON 2");
     if (z_check == 0 && z_STATE == -1) {  //
       Serial.println("z_check = 1 ");
+      //directionCHECK();
       buttonLimitZ = digitalRead(pinC);
       MovingMov(pinZ);  // if it down go up
       z_STATE = 0;
       z_check = 1;
+      notFinish = false;
       returnZero();
       return;
     }
@@ -119,13 +122,12 @@ void DirButton() {
     }
     if (snake_Action == true) {
       currentState = STATE::MOVING;
-    } else {
-      currentState = STATE::NORMAL;
-    }
-    if (snake_Action == true) {
-      if ((pulseInitX == 0 && pulseInitY == 0) || (pulseInitY % 2 == 1 && (pulseInitX >= pulseLimitX))) {  //start End
+      directionCHECK();
+      if ((pulseInitX == 0 && pulseInitY == 0) || (pulseInitY % 2 == 1 && (pulseInitX >= pulseLimitX)) || (pulseInitX == 0 && pulseInitY % 2 == 0)) {  //start End
         MovingMov(pinX);
-      } else if (((pulseInitX >= pulseLimitX) || (pulseInitX == 0)) && (movingFlag > 0)) {
+        Serial.println("moving flag = "+String(movingFlag));
+      } else if (((pulseInitX >= pulseLimitX) || (pulseInitX == 0)) && (movingFlag > 0) ) {
+        //directionCHECK();
         MovingMov(pinY);
         digitalWrite(pinX, LOW);
         //movingFlag --;
@@ -137,16 +139,21 @@ void DirButton() {
       }
       if (z_check == 0 && z_STATE != -1 && snake_Action == false) {  //check if Z axis is't already go down
         Serial.println("z_check = 0 ");
+        directionCHECK();
         buttonLimitZ = digitalRead(pinC);
         MovingMov(pinZ);  //if not down yet go down state =1                                  //move Z axis down
+        Serial.println("moving flag = "+String(movingFlag));
         return;
       }
+      Serial.println("moving flag = "+String(movingFlag));
+    } else {
+      currentState = STATE::NORMAL;
     }
   }
   //////////////////////////////////////////////////////////////////////////////////////
   /*
-  buttonDIR = digitalRead(pinDir);
-  if (buttonDIR == LOW && (pulseInitY >= pulseLimitY && pulseInitX >= pulseLimitX)) {  //working when SW is on and at pivot(max_X,max_Y)
+    buttonDIR = digitalRead(pinDir);
+    if (buttonDIR == LOW && (pulseInitY >= pulseLimitY && pulseInitX >= pulseLimitX)) {  //working when SW is on and at pivot(max_X,max_Y)
     if (z_check == 0 && z_STATE != -1) {                                               //check if Z axis is't already go down
       Serial.println("z_check = 0 ");
       buttonLimitZ = digitalRead(pinC);
@@ -167,16 +174,16 @@ void DirButton() {
       returnZero();
       return;
     }
-  }
-  if (buttonDIR == LOW && z_check == 0 && z_STATE != -1) {
+    }
+    if (buttonDIR == LOW && z_check == 0 && z_STATE != -1) {
     //currentState = STATE::z_MOV;
     Serial.println("z_check = 0 ");
     z_STATE = 0;
     buttonLimitZ = digitalRead(pinC);
     MovingMov(pinZ);  //if not down yet go down state =1
     return;
-  }
-  if (buttonDIR == LOW && z_check == 0 && z_STATE == -1) {
+    }
+    if (buttonDIR == LOW && z_check == 0 && z_STATE == -1) {
     Serial.println("z_check = 1 ");
     buttonLimitZ = digitalRead(pinC);
     MovingMov(pinZ);  // if it down go up
@@ -184,8 +191,8 @@ void DirButton() {
     z_check = 1;
     currentState = STATE::NORMAL;
     return;
-  }
-  if (buttonDIR == LOW && z_check == 1) {
+    }
+    if (buttonDIR == LOW && z_check == 1) {
     currentState = STATE::MOVING;
     directionCHECK();
     if ((pulseInitX == 0 && pulseInitY == 0) || (pulseInitY % 2 == 1 && (pulseInitX >= pulseLimitX))) {  //start End
@@ -202,10 +209,10 @@ void DirButton() {
       Serial.println(" yyyyyyyyoooooooooooo movwe  this huh");
     }
     Serial.println("moving");
-  } else {
+    } else {
     currentState = STATE::NORMAL;
-  }
-  //delay(500);
+    }
+    //delay(500);
   */
 }
 void PulseCheck(int buttonStateX, int buttonStateY) {
@@ -256,6 +263,7 @@ void zPulse() {
       z_STATE = -1;
       Serial.println("z_STATE = -1");
       digitalWrite(pinREDE, LOW);
+      Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
       break;
       //return;
     }
@@ -264,6 +272,7 @@ void zPulse() {
       z_STATE = 0;
       Serial.println("z_STATE = 0");
       digitalWrite(pinREDE, LOW);
+      Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
       break;
       //return;
     }
@@ -351,8 +360,9 @@ void MovingMov(int pinSOMETING) {
   }
   if (currentState == STATE::MOVING) {
     digitalWrite(pinSOMETING, HIGH);
-    delay(1500);
+    delay(500);
     digitalWrite(pinREDE, HIGH);
+    delay(200);
     buttonStateX = digitalRead(pinA);
     buttonStateY = digitalRead(pinB);
     if (buttonStateX == LOW && buttonStateY == LOW) {
@@ -403,8 +413,9 @@ void MovingMov(int pinSOMETING) {
   }
   if (currentState == STATE::REDO || currentState == STATE::RESET) {
     digitalWrite(pinSOMETING, HIGH);
-    delay(1500);
+    delay(500);
     digitalWrite(pinREDE, HIGH);
+    delay(200);
     buttonStateX = digitalRead(pinA);
     buttonStateY = digitalRead(pinB);
     if (buttonStateX == LOW && buttonStateY == LOW) {
@@ -484,12 +495,20 @@ void MovingMov(int pinSOMETING) {
 }
 
 void returnZero() {
+  
   buttonReset = digitalRead(pinRS);
   if (buttonReset == LOW || notFinish == false) {
     try_attempt = try_LIMIT;
     Serial.println("returnZero is working");
+    if (z_check == 0 && z_STATE == -1) {  //
+      Serial.println("z_check = 1 ");
+      //directionCHECK();
+      buttonLimitZ = digitalRead(pinC);
+      MovingMov(pinZ);  // if it down go up
+      z_STATE = 0;
+      z_check = 1;
+    }
     currentState = STATE::RESET;
-
     if (currentState == STATE::RESET) {
 
       left_stepsX = arrX[i];
@@ -530,9 +549,10 @@ void redoButton() {
     redoY = arrY[i] - arrY[i - 1];
     Serial.println("y current: " + String(arrY[i]) + "y before: " + String(arrY[i - 1]));
     directionCHECK();
-    if(snake == false){
-      
-    }
+    /*
+      if(snake == false){
+
+      }*/
 
     if (redoX > 0) {
       Serial.println("doing: redoX > 0");
@@ -571,7 +591,7 @@ bool Execpthrow() {
   if (pulseInitX > pulseLimitX || pulseInitY > pulseLimitY) {
     cut_out();
     Serial.println("Error: Out of rail");
-    delay(1000);
+    delay(1500);
     return true;
   } else {
     return false;

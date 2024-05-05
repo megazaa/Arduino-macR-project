@@ -50,6 +50,7 @@ int z_STATE = 0;
 int z_check = 0;
 int redoX, redoY, left_stepsX, left_stepsY;
 bool notFinish = true;
+bool delaystart = false;
 bool error = false;
 bool snake_Action = false;
 int arrX[(pulseLimitX + 1) * (pulseLimitY + 1)] = {};
@@ -72,6 +73,7 @@ void setup() {
   pinMode(pinD, OUTPUT);
   pinMode(pinREDE, OUTPUT);
   Serial.begin(9600);  // Initialize serial communication
+  delaytimer();
 }
 
 //program run loop
@@ -82,6 +84,14 @@ void loop() {
     returnZero();
     //delay(500); //delay off
   }
+}
+bool delaytimer() {
+  for (int time = 10; time >= 0; time--) {
+    delay(100);
+    Serial.println(time);
+  }
+  delaystart = true;
+  Serial.println("ready");
 }
 
 //moving function
@@ -127,7 +137,7 @@ void DirButton() {
       if ((pulseInitX == 0 && pulseInitY == 0) || (pulseInitY % 2 == 1 && (pulseInitX >= pulseLimitX)) || (pulseInitX == 0 && pulseInitY % 2 == 0)) {  //start End
         MovingMov(pinX);
         Serial.println("moving flag = " + String(movingFlag));
-      } else if (((pulseInitX >= pulseLimitX) || (pulseInitX == 0)) && (movingFlag > 0) ) {
+      } else if (((pulseInitX >= pulseLimitX) || (pulseInitX == 0)) && (movingFlag > 0)) {
         //directionCHECK();
         MovingMov(pinY);
         digitalWrite(pinX, LOW);
@@ -290,7 +300,7 @@ void MovingMov(int pinSOMETING) {
         Serial.println("buttonDIR == LOW");
         buttonLimitZ = digitalRead(pinC);
         if (buttonLimitZ == HIGH) {
-          delay(500);                     // add delay for Z
+          delay(500);  // add delay for Z
           digitalWrite(pinREDE, HIGH);
           break;
         }
@@ -538,7 +548,7 @@ void redoButton() {
     currentState = STATE::NORMAL;
   }
 }
-bool Execpthrow() {/*
+bool Execpthrow() { /*
   //init Checking thing up
   if (pulseInitX == 0 && pulseInitY == 0) {
     buttonStateX = digitalRead(pinA);

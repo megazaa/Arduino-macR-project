@@ -190,11 +190,10 @@ void xPulse(int buttonState) {
 void yPulse(int buttonState) {
   if ((buttonState == HIGH) && (Ycout >= Xcout)) {
     if (currentState != STATE::RESET) {
-      digitalWrite(pinX, LOW);
+      digitalWrite(pinY, LOW);
     }
     directionCHECK();
     pulseInitY = pulseInitY + direction;
-    digitalWrite(pinY, LOW);
     Serial.println("Y Pulseisworking");
     Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
     //currentState = STATE::NORMAL;
@@ -365,7 +364,7 @@ void MovingMov(int pinSOMETING) {
       currentState = STATE::NORMAL;
     }
   }
-  if (currentState == STATE::REDO || currentState == STATE::RESET) {
+  if (currentState == STATE::REDO || currentState == STATE::RESET) { // moving for reset
     digitalWrite(pinSOMETING, HIGH);
     delay(500);
     digitalWrite(pinREDE, HIGH);
@@ -548,16 +547,17 @@ void redoButton() {
     currentState = STATE::NORMAL;
   }
 }
-bool Execpthrow() { /*
-  //init Checking thing up
-  if (pulseInitX == 0 && pulseInitY == 0) {
-    buttonStateX = digitalRead(pinA);
-    buttonStateY = digitalRead(pinB);
-    Serial.println("not in ready position");
-    if (buttonStateX == LOW || buttonStateY == LOW) {
-      return true;
-    }
-  }*/
+bool Execpthrow() {
+  /*
+    //init Checking thing up
+    if (pulseInitX == 0 && pulseInitY == 0) {
+      buttonStateX = digitalRead(pinA);
+      buttonStateY = digitalRead(pinB);
+      Serial.println("not in ready position");
+      if (buttonStateX == LOW || buttonStateY == LOW) {
+        return true;
+      }
+    }*/
   if ((pulseInitX == 0 && pulseInitY == 0) && z_check == 1) {
     //Serial.println("pulseInitX == 0");
     direction = 1;

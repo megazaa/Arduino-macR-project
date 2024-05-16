@@ -6,74 +6,47 @@
 #define dir1 3
 #define dir2 2
 
-bool finished = false;
 bool cmd_Mode = false;
 String cmd_input = "";
-String norm_input = "";
 String result = "";
-String cmd_result ="";
-bool started, ended;
-int movX, movY;
-
-class Value {
-private:
-  int stepper;
-  int moveto;
-public:
-  void set_stepper(int s) {
-    stepper = s;
-  }
-  void get_stepper() {
-    return stepper;
-  }
-  void set_moveto(int s) {
-    moveto = s;
-  }
-  void get_moveto() {
-    return moveto;
-  }
-};
-
+String cmd_result = "";
+bool started = false, ended = false;
+int movX = 0, movY = 0;
 
 AccelStepper stepper1(1, pul1, dir1);
 AccelStepper stepper2(1, pul2, dir2);
 
 void setup() {
-  stepper1.setMaxSpeed(1000);
-  stepper2.setMaxSpeed(1000);
-  Serial.begin(9600);
+  stepper1.setMaxSpeed(2000);  // Increase max speed
+  stepper1.setAcceleration(1000);  // Increase acceleration
+  stepper2.setMaxSpeed(2000);  // Increase max speed
+  stepper2.setAcceleration(1000);  // Increase acceleration
+  Serial.begin(115200);
 }
 
 void loop() {
   command();
-  if (result == "1") {  //ถ้าตัวแปร key เป็น 1 ให้ทำในปีกกานี้
-    stepper1.setSpeed(800);
-    stepper1.moveTo(800);
-    stepper1.runSpeedToPosition();
-  }
-  if (result == "2") {  //ถ้าตัวแปร key เป็น 2 ให้ทำในปีกกานี้
-    stepper2.setSpeed(800);
-    stepper2.moveTo(1600);
-    stepper2.runSpeedToPosition();
-  }
-  if (result == "reset") {  //ถ้าตัวแปร key เป็น 2 ให้ทำในปีกกานี้
-    stepper1.setSpeed(800);
-    stepper1.moveTo(0);
-    stepper1.runSpeedToPosition();
 
-    stepper2.setSpeed(800);
+  if (result == "1") {  
+    stepper1.moveTo(800);
     stepper2.moveTo(0);
-    stepper2.runSpeedToPosition();
+  }
+  if (result == "2") {  
+    stepper2.moveTo(1600);
+    stepper1.moveTo(0);
+  }
+  if (result == "reset") {  
+    stepper1.moveTo(0);
+    stepper2.moveTo(0);
   }
   if (result == cmd_result) {
-    stepper1.setSpeed(800);
     stepper1.moveTo(movX);
-    stepper1.runSpeedToPosition();
-
-    stepper2.setSpeed(800);
     stepper2.moveTo(movY);
-    stepper2.runSpeedToPosition();
   }
+
+  // Ensure steppers keep running
+  stepper1.run();
+  stepper2.run();
 }
 
 void command() {
@@ -91,25 +64,21 @@ void command() {
       } else if (started) {
         cmd_input += incomingByte;
       }
-      norm_input += incomingByte;
-      delay(10);
+      delay(10);  // Small delay to ensure we read the full message
     }
-    result = norm_input;
-    norm_input = "";
-    Serial.println(norm_input);
+    result = cmd_input;  // Store the complete input in result
+    Serial.println(result);
 
     if (ended == true) {
-      int x, y;
-      sscanf(cmd_input.c_str(), "(%d,%d)", &x, &y);
+      sscanf(cmd_input.c_str(), "(%d,%d)", &movX, &movY);
 
       Serial.println(cmd_input);
       Serial.print("Received: ");
       Serial.print("Value: ");
-      Serial.print(x);
+      Serial.print(movX);
       Serial.print(", Key: ");
-      Serial.println(y);
-      movX = x;
-      movY = y;
+      Serial.println(movY);
+
       started = false;
       ended = false;
       cmd_result = cmd_input;

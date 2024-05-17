@@ -19,7 +19,7 @@ void handlePost() {
     server.send(400, "text/plain", "Body not received");
     return;
   }
-
+  
   String requestBody = server.arg("plain");
   StaticJsonDocument<200> doc;
   DeserializationError error = deserializeJson(doc, requestBody);
@@ -40,12 +40,20 @@ void handlePost() {
   Serial.println(")");
 
   // Send response
+  server.sendHeader("Access-Control-Allow-Origin", "*");
   server.send(200, "application/json", "{\"status\":\"received\"}");
 
   // Forward data to Arduino Nano
   //Serial.print(x);
   //Serial.print(",");
   //Serial.println(y);
+}
+
+void handleOptions() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.send(204);
 }
 
 void setup() {
@@ -58,9 +66,12 @@ void setup() {
   }
 
   Serial.println("Connected to WiFi");
-  server.on("/", handleRoot);
+
+  server.on("/", HTTP_GET, handleRoot);
   server.onNotFound(handleNotFound);
   server.on("/post", HTTP_POST, handlePost);
+  server.on("/post", HTTP_OPTIONS, handleOptions);
+  
   server.begin();
 }
 

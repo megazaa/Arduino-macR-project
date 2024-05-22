@@ -17,9 +17,9 @@ AccelStepper stepper1(1, pul1, dir1);
 AccelStepper stepper2(1, pul2, dir2);
 
 void setup() {
-  stepper1.setMaxSpeed(2000);  // Increase max speed
+  stepper1.setMaxSpeed(2000);      // Increase max speed
   stepper1.setAcceleration(1000);  // Increase acceleration
-  stepper2.setMaxSpeed(2000);  // Increase max speed
+  stepper2.setMaxSpeed(2000);      // Increase max speed
   stepper2.setAcceleration(1000);  // Increase acceleration
   Serial.begin(115200);
 }
@@ -27,15 +27,15 @@ void setup() {
 void loop() {
   command();
 
-  if (result == "1") {  
+  if (result == "1") {
     stepper1.moveTo(800);
     stepper2.moveTo(0);
   }
-  if (result == "2") {  
+  if (result == "2") {
     stepper2.moveTo(1600);
     stepper1.moveTo(0);
   }
-  if (result == "reset") {  
+  if (result == "reset") {
     stepper1.moveTo(0);
     stepper2.moveTo(0);
   }

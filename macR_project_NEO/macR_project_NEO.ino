@@ -12,6 +12,10 @@ String result = "";
 String cmd_result = "";
 bool started = false, ended = false;
 int movX = 0, movY = 0;
+bool done = false;
+
+unsigned long period = 1000; //ระยะเวลาที่ต้องการรอ
+unsigned long last_time = 0; //ประกาศตัวแปรเป็น global เพื่อเก็บค่าไว้ไม่ให้ reset จากการวนloop
 
 AccelStepper stepper1(1, pul1, dir1);
 AccelStepper stepper2(1, pul2, dir2);
@@ -26,25 +30,23 @@ void setup() {
 
 void loop() {
   command();
-
-  if (result == "1") {
-    stepper1.moveTo(800);
-    stepper2.moveTo(0);
-  }
-  if (result == "2") {
-    stepper2.moveTo(1600);
-    stepper1.moveTo(0);
-  }
-  if (result == "reset") {
-    stepper1.moveTo(0);
-    stepper2.moveTo(0);
-  }
+    if((stepper1.currentPosition() == movX && stepper2.currentPosition() == movY)&& (millis() - last_time > period) ) {
+    last_time = millis(); //เซฟเวลาปัจจุบันไว้เพื่อรอจนกว่า millis() จะมากกว่าตัวมันเท่า period 
+    String str = "{"+String(stepper1.currentPosition())+","+String(stepper2.currentPosition())+"}";
+    int len = str.length() + 1;
+    char charArr[len];
+    str.toCharArray(charArr,len);
+    for(int i = 0; i < len-1;i++){
+      Serial.print(charArr[i]);
+    }
+    Serial.println();
+ }
+  
+  
   if (result == cmd_result) {
     stepper1.moveTo(movX);
     stepper2.moveTo(movY);
   }
-
-  // Ensure steppers keep running
   stepper1.run();
   stepper2.run();
 }
@@ -64,7 +66,7 @@ void command() {
       } else if (started) {
         cmd_input += incomingByte;
       }
-      delay(10);  // Small delay to ensure we read the full message
+      //delay(1);  // Small delay to ensure we read the full message
     }
     result = cmd_input;  // Store the complete input in result
     Serial.println(result);

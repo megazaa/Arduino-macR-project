@@ -14,7 +14,7 @@ bool started = false, ended = false;
 int movX = 0, movY = 0;
 bool done = false;
 
-unsigned long period = 1000; //ระยะเวลาที่ต้องการรอ
+unsigned long period = 500; //ระยะเวลาที่ต้องการรอ
 unsigned long last_time = 0; //ประกาศตัวแปรเป็น global เพื่อเก็บค่าไว้ไม่ให้ reset จากการวนloop
 
 AccelStepper stepper1(1, pul1, dir1);
@@ -30,7 +30,7 @@ void setup() {
 
 void loop() {
   command();
-    if((stepper1.currentPosition() == movX && stepper2.currentPosition() == movY)&& (millis() - last_time > period) ) {
+    if((millis() - last_time > period) ) {
     last_time = millis(); //เซฟเวลาปัจจุบันไว้เพื่อรอจนกว่า millis() จะมากกว่าตัวมันเท่า period 
     String str = "{"+String(stepper1.currentPosition())+","+String(stepper2.currentPosition())+"}";
     int len = str.length() + 1;
@@ -68,13 +68,12 @@ void command() {
       }
       //delay(1);  // Small delay to ensure we read the full message
     }
-    result = cmd_input;  // Store the complete input in result
-    Serial.println(result);
 
     if (ended == true) {
+      result = cmd_input;  // Store the complete input in result
+      Serial.println(result);
       sscanf(cmd_input.c_str(), "(%d,%d)", &movX, &movY);
-
-      Serial.println(cmd_input);
+      //Serial.println(cmd_input);
       Serial.print("Received: ");
       Serial.print("Value: ");
       Serial.print(movX);

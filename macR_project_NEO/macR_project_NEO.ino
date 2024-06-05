@@ -1,38 +1,45 @@
 #include <AccelStepper.h>
 #include <MultiStepper.h>
 
-#define pul1 5
-#define pul2 4
+#define pul1 2
 #define dir1 3
-#define dir2 2
+
+#define pul2 4
+#define dir2 5
+
+#define pul3 6
+#define dir3 7
 
 bool cmd_Mode = false;
 String cmd_input = "";
 String result = "";
 String cmd_result = "";
 bool started = false, ended = false;
-int movX = 0, movY = 0;
+int movX = 0, movY = 0, movZ = 0;
 bool done = false;
 
-unsigned long period = 500; //ระยะเวลาที่ต้องการรอ
-unsigned long last_time = 0; //ประกาศตัวแปรเป็น global เพื่อเก็บค่าไว้ไม่ให้ reset จากการวนloop
+unsigned long period = 500;
+unsigned long last_time = 0;
 
 AccelStepper stepper1(1, pul1, dir1);
 AccelStepper stepper2(1, pul2, dir2);
+AccelStepper stepper3(1, pul3, dir3);
 
 void setup() {
   stepper1.setMaxSpeed(2000);      // Increase max speed
   stepper1.setAcceleration(1000);  // Increase acceleration
   stepper2.setMaxSpeed(2000);      // Increase max speed
   stepper2.setAcceleration(1000);  // Increase acceleration
+  stepper3.setMaxSpeed(2000);      // Increase max speed
+  stepper3.setAcceleration(1000);  // Increase acceleration
   Serial.begin(115200);
 }
 
 void loop() {
   command();
     if((millis() - last_time > period) ) {
-    last_time = millis(); //เซฟเวลาปัจจุบันไว้เพื่อรอจนกว่า millis() จะมากกว่าตัวมันเท่า period 
-    String str = "{"+String(stepper1.currentPosition())+","+String(stepper2.currentPosition())+"}";
+    last_time = millis();
+    String str = "{"+String(stepper1.currentPosition())+","+String(stepper2.currentPosition())+","+String(stepper3.currentPosition())+"}";
     int len = str.length() + 1;
     char charArr[len];
     str.toCharArray(charArr,len);
@@ -46,15 +53,17 @@ void loop() {
   if (result == cmd_result) {
     stepper1.moveTo(movX);
     stepper2.moveTo(movY);
+    stepper3.moveTo(movZ);
   }
   stepper1.run();
   stepper2.run();
+  stepper3.run();
 }
 
 void command() {
   if (Serial.available() > 0) {
     while (Serial.available() > 0) {
-      char incomingByte = Serial.read();  // Read the incoming byte as a character
+      char incomingByte = Serial.read();
       if (incomingByte == '(') {
         cmd_input = "";
         cmd_input += '(';
@@ -66,19 +75,20 @@ void command() {
       } else if (started) {
         cmd_input += incomingByte;
       }
-      //delay(1);  // Small delay to ensure we read the full message
     }
 
     if (ended == true) {
-      result = cmd_input;  // Store the complete input in result
+      result = cmd_input;
       Serial.println(result);
-      sscanf(cmd_input.c_str(), "(%d,%d)", &movX, &movY);
+      sscanf(cmd_input.c_str(), "(%d,%d,%d)", &movX, &movY , &movZ);
       //Serial.println(cmd_input);
       Serial.print("Received: ");
-      Serial.print("Value: ");
+      Serial.print("x: ");
       Serial.print(movX);
-      Serial.print(", Key: ");
-      Serial.println(movY);
+      Serial.print(", y: ");
+      Serial.print(movX);
+      Serial.print(", z: ");
+      Serial.println(movZ);
 
       started = false;
       ended = false;

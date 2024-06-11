@@ -2,7 +2,7 @@
 #include <ESP8266WebServer.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "Mega Who_plus";
+const char* ssid = "Mega Who";
 const char* password = "23571234";
 ESP8266WebServer server(80);
 

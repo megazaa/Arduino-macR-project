@@ -14,9 +14,11 @@ bool cmd_Mode = false;
 String cmd_input = "";
 String result = "";
 String cmd_result = "";
+String prev_str = "";
 bool started = false, ended = false;
 int movX = 0, movY = 0, movZ = 0;
 bool done = false;
+int timeout = 10;
 
 unsigned long period = 500;
 unsigned long last_time = 0;
@@ -37,19 +39,30 @@ void setup() {
 
 void loop() {
   command();
-    if((millis() - last_time > period) ) {
+  if ((millis() - last_time > period) ) {
     last_time = millis();
-    String str = "{"+String(stepper1.currentPosition())+","+String(stepper2.currentPosition())+","+String(stepper3.currentPosition())+"}";
+    String str = "send: {" + String(stepper1.currentPosition()) + "," + String(stepper2.currentPosition()) + "," + String(stepper3.currentPosition()) + "}";
+    if (prev_str == str ) {
+      timeout--;
+      Serial.println(timeout);
+      if (timeout == 0) {
+        period = 1000;
+      }
+    } else {
+      timeout = 10;
+      period = 500;
+    }
     int len = str.length() + 1;
     char charArr[len];
-    str.toCharArray(charArr,len);
-    for(int i = 0; i < len-1;i++){
+    str.toCharArray(charArr, len);
+    for (int i = 0; i < len - 1; i++) {
       Serial.print(charArr[i]);
     }
     Serial.println();
- }
-  
-  
+    prev_str = str;
+  }
+
+
   if (result == cmd_result) {
     stepper1.moveTo(movX);
     stepper2.moveTo(movY);
@@ -80,7 +93,7 @@ void command() {
     if (ended == true) {
       result = cmd_input;
       Serial.println(result);
-      sscanf(cmd_input.c_str(), "(%d,%d,%d)", &movX, &movY , &movZ);
+      sscanf(cmd_input.c_str(), "(%d,%d,%d)", &movX, &movY, &movZ);
       //Serial.println(cmd_input);
       Serial.print("Received: ");
       Serial.print("x: ");

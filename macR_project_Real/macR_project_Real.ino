@@ -3,13 +3,13 @@ const int pinA = 12;
 const int pinB = 11;
 const int pinC = 10;
 const int pinDir = 9;
-const int pinRD = 8;
 const int pinRS = 7;
 
 //output
-const int pinX = 6;
+const int pinX = 6;// z 2
 const int pinY = 4;
-const int pinZ = 2;
+const int pinZ = 2;// x 6
+const int pinZSpeed = 8;//pinRD
 const int pinD = 5;
 const int pinREDE = 3;
 
@@ -35,7 +35,7 @@ int buttonStateX = digitalRead(pinA);
 int buttonStateY = digitalRead(pinB);
 int buttonLimitZ = digitalRead(pinC);
 int buttonDIR = digitalRead(pinDir);
-int buttonRedo = digitalRead(pinRD);
+//int buttonRedo = digitalRead(pinRD);
 int buttonReset = digitalRead(pinRS);
 
 //declare values for function
@@ -63,13 +63,13 @@ void setup() {
   pinMode(pinB, INPUT_PULLUP);
   pinMode(pinC, INPUT_PULLUP);
   pinMode(pinDir, INPUT_PULLUP);
-  pinMode(pinRD, INPUT_PULLUP);
   pinMode(pinRS, INPUT_PULLUP);
 
   //output
   pinMode(pinX, OUTPUT);
   pinMode(pinY, OUTPUT);
   pinMode(pinZ, OUTPUT);
+  pinMode(pinZSpeed, OUTPUT);
   pinMode(pinD, OUTPUT);
   pinMode(pinREDE, OUTPUT);
   Serial.begin(9600);  // Initialize serial communication
@@ -80,7 +80,6 @@ void setup() {
 void loop() {
   if (Execpthrow() == false) {
     DirButton();
-    redoButton();
     returnZero();
     //delay(500); //delay off
   }
@@ -173,6 +172,7 @@ void PulseCheck(int buttonStateX, int buttonStateY) {
 void xPulse(int buttonState) {
   if ((buttonState == HIGH) && (Xcout >= Ycout)) {
     if (currentState != STATE::RESET) {
+      Serial.println("X Pulseisworking");
       digitalWrite(pinX, LOW);
     }
     directionCHECK();
@@ -190,6 +190,7 @@ void xPulse(int buttonState) {
 void yPulse(int buttonState) {
   if ((buttonState == HIGH) && (Ycout >= Xcout)) {
     if (currentState != STATE::RESET) {
+      Serial.println("Y Pulseisworking");
       digitalWrite(pinY, LOW);
     }
     directionCHECK();
@@ -214,7 +215,9 @@ void zPulse() {
       digitalWrite(pinZ, LOW);
       z_STATE = -1;
       Serial.println("z_STATE = -1");
-      digitalWrite(pinREDE, LOW);
+      //digitalWrite(pinREDE, LOW);
+      digitalWrite(pinZSpeed, LOW);
+
       Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
       break;
       //return;
@@ -223,7 +226,8 @@ void zPulse() {
       digitalWrite(pinZ, LOW);
       z_STATE = 0;
       Serial.println("z_STATE = 0");
-      digitalWrite(pinREDE, LOW);
+      //digitalWrite(pinREDE, LOW);
+      digitalWrite(pinZSpeed, LOW);
       Serial.println("current position " + String(pulseInitX) + " " + String(pulseInitY));
       break;
       //return;
@@ -282,9 +286,6 @@ void directionCHECK() {
       return;
     }
   }
-
-
-
   //return direction;
 }
 
@@ -300,7 +301,8 @@ void MovingMov(int pinSOMETING) {
         buttonLimitZ = digitalRead(pinC);
         if (buttonLimitZ == HIGH) {
           delay(500);  // add delay for Z
-          digitalWrite(pinREDE, HIGH);
+          //digitalWrite(pinREDE, HIGH);
+          digitalWrite(pinZSpeed, HIGH);
           break;
         }
       }
@@ -367,8 +369,7 @@ void MovingMov(int pinSOMETING) {
   if (currentState == STATE::REDO || currentState == STATE::RESET) { // moving for reset
     digitalWrite(pinSOMETING, HIGH);
     delay(500);
-    digitalWrite(pinREDE, HIGH);
-    delay(200);
+    //digitalWrite(pinREDE, HIGH);
     buttonStateX = digitalRead(pinA);
     buttonStateY = digitalRead(pinB);
     if (buttonStateX == LOW && buttonStateY == LOW) {
@@ -388,7 +389,7 @@ void MovingMov(int pinSOMETING) {
           if (pulseInitX == 0) {
             Serial.println("X end");
             digitalWrite(pinX, LOW);
-            digitalWrite(pinREDE, LOW);
+            //digitalWrite(pinREDE, LOW);
           }
           if (currentState == STATE::REDO) {
             currentState = STATE::NORMAL;
@@ -418,10 +419,10 @@ void MovingMov(int pinSOMETING) {
           movingFlag++;
           PulseCheck(buttonStateX, buttonStateY);
           if (pulseInitY == 0) {
-            Serial.println("X end");
+            Serial.println("Y end");
             digitalWrite(pinX, LOW);
             digitalWrite(pinY, LOW);
-            digitalWrite(pinREDE, LOW);
+            //digitalWrite(pinREDE, LOW);
           }
           if (currentState == STATE::REDO) {
             currentState = STATE::NORMAL;
@@ -433,7 +434,6 @@ void MovingMov(int pinSOMETING) {
             try_attempt = try_LIMIT;
             return;
           }
-
           break;
         }
       }
@@ -504,49 +504,7 @@ void returnZero() {
     currentState = STATE::NORMAL;
   }
 }
-void redoButton() {
-  buttonRedo = digitalRead(pinRD);
-  if (buttonRedo == LOW && currentState == STATE::NORMAL && (pulseInitX != 0 || pulseInitY != 0)) {
-    currentState = STATE::REDO;
 
-    redoX = arrX[i] - arrX[i - 1];
-    Serial.println("x current: " + String(arrX[i]) + "x before: " + String(arrX[i - 1]));
-    redoY = arrY[i] - arrY[i - 1];
-    Serial.println("y current: " + String(arrY[i]) + "y before: " + String(arrY[i - 1]));
-    directionCHECK();
-    /*
-      if(snake == false){
-
-      }*/
-
-    if (redoX > 0) {
-      Serial.println("doing: redoX > 0");
-      MovingMov(pinX);
-      z_check = 0;
-    } else if (redoX < 0) {
-      Serial.println("doing: redoX < 0");
-      MovingMov(pinX);
-      z_check = 0;
-    } else if (redoY > 0) {
-      Serial.println("doing: redoY > 0");
-      MovingMov(pinY);
-      z_check = 0;
-    } else {
-      Serial.println("Error: You cant");
-      Serial.println();
-      while (i >= 0) {
-        Serial.print("(");
-        Serial.print(String(arrX[i]));
-        Serial.print(",");
-        Serial.print(String(arrY[i]));
-        Serial.print(")");
-      }
-      z_check = 0;
-    }
-  } else {
-    currentState = STATE::NORMAL;
-  }
-}
 bool Execpthrow() {
   /*
     //init Checking thing up
